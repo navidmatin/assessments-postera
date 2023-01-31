@@ -49,12 +49,12 @@ conda install --file conda-packages.txt
 pip --no-cache-dir install -r requirements.txt
 ```
 5. Install javascript dependencies:
-- in frontend directory, call: `npm install`
+- in frontend directory, call: `yarn install`
 
 ## Run server
 Inside of the conda environment, call the following in two separate terminals:
 1. in the backend directory: `python main.py`
-2. in the frontend directory: `npm run start`
+2. in the frontend directory: `yarn start`
 
 ## Instructions
 What we would like to see:

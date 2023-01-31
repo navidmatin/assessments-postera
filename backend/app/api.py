@@ -10,12 +10,12 @@ origins = [
     "http://localhost:3000",
     "localhost:3000"
 ]
-# If using VSCode + windows, try using your IP 
+# If using VSCode + windows, try using your IP
 # instead (see frontent terminal)
-#origins = [
+# origins = [
 #    "http://X.X.X.X:3000",
 #    "X.X.X.X:3000"
-#]
+# ]
 
 
 app.add_middleware(
@@ -32,16 +32,19 @@ def make_routes():
     # routes are found in the routes.json file
     return [{}]
 
+
 def draw_molecule(smiles: str):
     mol = Chem.MolFromSmiles(smiles)
     img = Chem.Draw.MolsToGridImage([mol], molsPerRow=1, useSVG=True)
     return img
+
 
 @app.get("/", tags=["root"])
 async def read_root() -> dict:
     return {
         "message": "Welcome to your app.",
     }
+
 
 @app.get("/molecule", tags=["molecule"])
 async def get_molecule(smiles: str) -> dict:
@@ -51,6 +54,7 @@ async def get_molecule(smiles: str) -> dict:
     return {
         "data": molecule,
     }
+
 
 @app.get("/routes", tags=["routes"])
 async def get_routes() -> dict:
