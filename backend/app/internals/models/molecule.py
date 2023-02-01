@@ -8,4 +8,4 @@ class Molecule:
     def __init__(self, smiles, creation_reactions: Set[Reaction] = None, acquisition_catalogs: Set[Catalog] = None):
         self.smiles = smiles
         self.creation_reactions = creation_reactions or set()
-        self.acquisition = acquisition_catalogs or set()
+        self.acquisition_catalogs = acquisition_catalogs or set()

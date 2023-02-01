@@ -1,3 +1,4 @@
+from app.internals.route_reader import RouteReader
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -8,7 +9,8 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",
-    "localhost:3000"
+    "localhost:3000",
+    "http://localhost:5100"
 ]
 # If using VSCode + windows, try using your IP
 # instead (see frontent terminal)
@@ -27,10 +29,12 @@ app.add_middleware(
 )
 
 
-def make_routes():
-    # TODO: use this method to return routes as a tree data structure.
-    # routes are found in the routes.json file
-    return [{}]
+async def make_d3_routes():
+    routes = await RouteReader.load_routes()
+    d3_routes = []
+    for route in routes:
+        d3_routes.append(RouteReader.create_d3_tree_from_route(route))
+    return d3_routes
 
 
 def draw_molecule(smiles: str):
@@ -58,7 +62,7 @@ async def get_molecule(smiles: str) -> dict:
 
 @app.get("/routes", tags=["routes"])
 async def get_routes() -> dict:
-    routes = make_routes()
+    routes = await make_d3_routes()
     return {
         "data": routes,
     }
