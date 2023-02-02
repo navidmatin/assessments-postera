@@ -3,8 +3,12 @@ from app.internals.models.route import Route
 import json
 import pdb
 
+from app.internals.models.molecule import Molecule
+from app.internals.models.reaction import Reaction
+
 
 def test_parse_route_info_will_parse_route_info_correctly():
+    # Arrange
     input = """    {
         "score": 1.2,
         "molecules": [
@@ -215,11 +219,43 @@ def test_parse_route_info_will_parse_route_info_correctly():
     }"""
     route_info = json.loads(input)
     route = Route()
+
+    # Act
     route.parse_route_info(route_info)
-    assert route.resulting_molecule == "O=C(Cn1nnc2ccccc21)N(Cc1ccsc1)c1ccc(Cl)cc1"
+
+    # Assert
+    assert route.resulting_molecule_smile == "O=C(Cn1nnc2ccccc21)N(Cc1ccsc1)c1ccc(Cl)cc1"
     assert route.score == 1.2
     assert len(route.smiles_to_molecules) == 5
     assert len(
         route.smiles_to_molecules["O=C(Cn1nnc2ccccc21)NCc1ccsc1"].creation_reactions) == 1
     assert len(
         route.smiles_to_molecules["O=C(Cn1nnc2ccccc21)N(Cc1ccsc1)c1ccc(Cl)cc1"].creation_reactions) == 1
+
+
+def test_getting_base_molecules_from_reaction_correctly():
+    # Arrange
+    route = Route()
+    molecule1_smiles = 'base_1'
+    molecule2_smiles = 'base_2'
+    result_molecule_smiles = 'result'
+    base_molecule1 = Molecule(molecule1_smiles)
+    base_molecule2 = Molecule(molecule2_smiles)
+    reaction = Reaction(name='result_reaction', target=result_molecule_smiles, sources=[
+                        molecule1_smiles, molecule2_smiles])
+    main_molecule = Molecule(
+        result_molecule_smiles, creation_reactions={reaction})
+    route.smiles_to_molecules = {
+        main_molecule.smiles: main_molecule,
+        molecule1_smiles: base_molecule1,
+        molecule2_smiles: base_molecule2
+    }
+
+    # Act
+    result = route.get_base_molecules_from_reaction(result_molecule_smiles)
+
+    # Assert
+    result_smiles = [molecule.smiles for molecule in result]
+    assert len(result) == 2
+    assert result_smiles.count(molecule1_smiles) == 1
+    assert result_smiles.count(molecule2_smiles) == 1

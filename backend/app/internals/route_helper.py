@@ -10,7 +10,7 @@ class RouteHelper:
     async def load_routes() -> List[Route]:
         routes = []
         # can use libraries to read the file async
-        async with aiofiles.open("app/internals/routes.json", mode="r") as file:
+        async with aiofiles.open("routes.json", mode="r") as file:
             content = await file.read()
 
         parsed_routes = json.loads(content)

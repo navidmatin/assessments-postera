@@ -9,6 +9,7 @@ class Route:
         self.score = None
         self.resulting_molecule_smile = None
         self.smiles_to_molecules = dict()
+        self.id = None
 
     def parse_route_info(self, route_info) -> 'Route':
         reactions = route_info['reactions']
@@ -46,8 +47,6 @@ class Route:
                 smiles_to_molecules[reaction_target] = Molecule(
                     reaction_target)
 
-            # print(reaction_obj)
-            # pdb.set_trace()
             smiles_to_molecules[reaction_target].creation_reactions.add(
                 reaction_obj)
 
@@ -57,12 +56,6 @@ class Route:
                 self.resulting_molecule_smile = target
                 break
         return self
-
-    def molecule(self, smiles) -> Molecule:
-        if smiles in self.smiles_to_molecules:
-            return self.smiles_to_molecules[smiles]
-
-        return None
 
     def get_resulting_molecule(self) -> Molecule:
         if not self.resulting_molecule_smile in self.smiles_to_molecules:
