@@ -5,7 +5,8 @@ from typing import List
 
 
 class Molecule:
-    def __init__(self, smiles, creation_reactions: Set[Reaction] = None, acquisition_catalogs: Set[Catalog] = None):
+    def __init__(self, smiles, creation_reactions: Set[Reaction] = None, acquisition_catalogs: Set[Catalog] = None, route_id: str = None):
         self.smiles = smiles
         self.creation_reactions = creation_reactions or set()
         self.acquisition_catalogs = acquisition_catalogs or set()
+        self.route_id = route_id

@@ -75,7 +75,11 @@ export const Routes = () => {
           onChange={onDropDownChange}
         />
         {isReadyToDisplayTree && (
-          <MoleculeTree smilesToAttrMap={smilesToAttr} route={selectedRoute} />
+          <MoleculeTree
+            smilesToAttrMap={smilesToAttr}
+            route={selectedRoute}
+            routeId={selectedRouteIndex}
+          />
         )}
       </>
     )

@@ -18,7 +18,7 @@ import {
 const NODE_HIGHT = 200;
 const NODE_WIDTH = 200;
 
-export const MoleculeTree = ({ smilesToAttrMap, route }) => {
+export const MoleculeTree = ({ smilesToAttrMap, route, routeId }) => {
   const [popoverAnchor, setPopOverAnchor] = useState();
   const [popOverSmiles, setPopOverSmiles] = useState();
 
@@ -61,6 +61,9 @@ export const MoleculeTree = ({ smilesToAttrMap, route }) => {
 
   const popOverAttributes = smilesToAttrMap?.get(popOverSmiles);
   const popOverReactions = popOverAttributes?.reactions;
+  const popOverOtherRoutes = popOverAttributes?.all_route_ids?.filter(
+    (x) => x !== routeId
+  );
   const popOverCatalogs = popOverAttributes?.acquisition_catalogs;
 
   return (
@@ -112,6 +115,13 @@ export const MoleculeTree = ({ smilesToAttrMap, route }) => {
                   label={`${catalog.name} | ${catalog.lead_time_weeks} weeks lead time`}
                 />
               ))}
+              {popOverOtherRoutes && (
+                <Chip
+                  key={route}
+                  variant="outlined"
+                  label={`Also in these routes #${popOverOtherRoutes}`}
+                />
+              )}
             </Stack>
           </Alert>
         </Popover>

@@ -221,7 +221,7 @@ def test_parse_route_info_will_parse_route_info_correctly():
     route = Route()
 
     # Act
-    route.parse_route_info(route_info)
+    route.parse_route_info(route_info, 1)
 
     # Assert
     assert route.resulting_molecule_smile == "O=C(Cn1nnc2ccccc21)N(Cc1ccsc1)c1ccc(Cl)cc1"

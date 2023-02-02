@@ -31,11 +31,14 @@ app.add_middleware(
 
 async def make_d3_routes():
     routes = await RouteHelper.load_routes()
+    route_analytics_result = RouteHelper.analyze_routes_for_overlaps(routes)
+
     view_routes = []
     for route in routes:
+        molecule = RouteHelper.create_d3_tree_from_route(
+            route, route_analytics_result)
         view_routes.append(
-            {'score': route.score, 'molecule': RouteHelper.create_d3_tree_from_route(
-                route)})
+            {'score': route.score, 'molecule': molecule, 'route_id': route.id})
     return view_routes
 
 

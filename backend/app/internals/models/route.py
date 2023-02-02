@@ -11,10 +11,11 @@ class Route:
         self.smiles_to_molecules = dict()
         self.id = None
 
-    def parse_route_info(self, route_info) -> 'Route':
+    def parse_route_info(self, route_info, id: str = None) -> 'Route':
         reactions = route_info['reactions']
         molecules = route_info['molecules']
         self.score = route_info['score']
+        self.id = id
 
         smiles_to_molecules = self.smiles_to_molecules
         non_building_block_smiles = set()
@@ -32,20 +33,20 @@ class Route:
                         catalog_entry['lead_time_weeks'])
                 )
             smiles_to_molecules[smiles] = Molecule(
-                smiles=smiles, acquisition_catalogs=catalog_set)
+                smiles=smiles, acquisition_catalogs=catalog_set, route_id=id)
             if not molecule['is_building_block']:
                 non_building_block_smiles.add(smiles)
 
         for reaction in reactions:
             reaction_target = reaction['target']
             reaction_obj = Reaction(
-                reaction['name'], reaction_target, reaction['sources'])
+                reaction['name'], reaction_target, reaction['sources'], route_id=id)
             # Let's add source smiles to a set so we can check them later easily
             reaction_source_smiles = reaction_source_smiles.union(
                 reaction_obj.sources)
             if not reaction_target in smiles_to_molecules:
                 smiles_to_molecules[reaction_target] = Molecule(
-                    reaction_target)
+                    reaction_target, route_id=id)
 
             smiles_to_molecules[reaction_target].creation_reactions.add(
                 reaction_obj)

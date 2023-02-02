@@ -14,6 +14,7 @@ def test_get_routes():
     for route in result['data']:
         assert 'molecule' in route
         assert 'score' in route
+        assert 'route_id' in route
 
 
 def test_get_molecule():

@@ -8,8 +8,9 @@
       "name": "Python: Current File",
       "type": "python",
       "request": "launch",
-      "program": "backend/main.py",
+      "program": "main.py",
       "console": "integratedTerminal",
+      "cwd": "backend",
       "justMyCode": true
     }
   ]
