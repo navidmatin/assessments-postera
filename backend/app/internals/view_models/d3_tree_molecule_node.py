@@ -14,7 +14,7 @@ class D3TreeMoleculeNode:
 
     def __convert_molecule_to_attributes(self, molecule: Molecule):
         self.name = molecule.smiles
-        self.attributes["acquisition_catalogs"] = molecule.acquisition_catalogs
+        # self.attributes["acquisition_catalogs"] = molecule.acquisition_catalogs
 
     def __convert_reactions_to_children(self, molecule: Molecule, route: Route) -> None:
         base_molecules = route.get_base_molecules_from_reaction(

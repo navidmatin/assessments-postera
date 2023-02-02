@@ -1,12 +1,13 @@
 import json
 import aiofiles
+from typing import List
 
 from app.internals.models.route import Route
 from app.internals.view_models.d3_tree_molecule_node import D3TreeMoleculeNode
 
 
 class RouteReader:
-    async def load_routes():
+    async def load_routes() -> List[Route]:
         routes = []
         # can use libraries to read the file async
         async with aiofiles.open("app/internals/routes.json", mode="r") as file:

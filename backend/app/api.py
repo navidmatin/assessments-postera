@@ -1,5 +1,5 @@
 from app.internals.route_reader import RouteReader
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 import rdkit.Chem as Chem
@@ -31,15 +31,17 @@ app.add_middleware(
 
 async def make_d3_routes():
     routes = await RouteReader.load_routes()
-    d3_routes = []
+    view_routes = []
     for route in routes:
-        d3_routes.append(RouteReader.create_d3_tree_from_route(route))
-    return d3_routes
+        view_routes.append(
+            {'score': route.score, 'molecule': RouteReader.create_d3_tree_from_route(route)})
+    return view_routes
 
 
-def draw_molecule(smiles: str):
+def draw_molecule(smiles: str, height: int, width: int):
     mol = Chem.MolFromSmiles(smiles)
-    img = Chem.Draw.MolsToGridImage([mol], molsPerRow=1, useSVG=True)
+    img = Chem.Draw.MolsToGridImage(
+        [mol], molsPerRow=1, subImgSize=[height, width], useSVG=True)
     return img
 
 
@@ -51,13 +53,13 @@ async def read_root() -> dict:
 
 
 @app.get("/molecule", tags=["molecule"])
-async def get_molecule(smiles: str) -> dict:
-    molecule = draw_molecule(smiles)
-
+async def get_molecule(smiles: str, height: int = 200, width: int = 200) -> dict:
+    molecule = draw_molecule(smiles, height, width)
+    return Response(content=molecule, media_type="image/svg+xml")
     # TODO: return svg image
-    return {
-        "data": molecule,
-    }
+    # return {
+    #     "data": molecule,
+    # }
 
 
 @app.get("/routes", tags=["routes"])
