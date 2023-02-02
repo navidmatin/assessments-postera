@@ -6,7 +6,7 @@ from app.internals.models.route import Route
 from app.internals.view_models.d3_tree_molecule_node import D3TreeMoleculeNode
 
 
-class RouteReader:
+class RouteHelper:
     async def load_routes() -> List[Route]:
         routes = []
         # can use libraries to read the file async

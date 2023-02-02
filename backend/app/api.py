@@ -1,4 +1,4 @@
-from app.internals.route_reader import RouteReader
+from app.internals.route_helper import RouteHelper
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -30,11 +30,12 @@ app.add_middleware(
 
 
 async def make_d3_routes():
-    routes = await RouteReader.load_routes()
+    routes = await RouteHelper.load_routes()
     view_routes = []
     for route in routes:
         view_routes.append(
-            {'score': route.score, 'molecule': RouteReader.create_d3_tree_from_route(route)})
+            {'score': route.score, 'molecule': RouteHelper.create_d3_tree_from_route(
+                route)})
     return view_routes
 
 
@@ -45,24 +46,20 @@ def draw_molecule(smiles: str, height: int, width: int):
     return img
 
 
-@app.get("/", tags=["root"])
+@ app.get("/", tags=["root"])
 async def read_root() -> dict:
     return {
         "message": "Welcome to your app.",
     }
 
 
-@app.get("/molecule", tags=["molecule"])
+@ app.get("/molecule", tags=["molecule"])
 async def get_molecule(smiles: str, height: int = 200, width: int = 200) -> dict:
     molecule = draw_molecule(smiles, height, width)
     return Response(content=molecule, media_type="image/svg+xml")
-    # TODO: return svg image
-    # return {
-    #     "data": molecule,
-    # }
 
 
-@app.get("/routes", tags=["routes"])
+@ app.get("/routes", tags=["routes"])
 async def get_routes() -> dict:
     routes = await make_d3_routes()
     return {

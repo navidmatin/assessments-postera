@@ -1,19 +1,30 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { ReactSVG } from "react-svg";
 import Tree from "react-d3-tree";
+import ScienceIcon from "@mui/icons-material/Science";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+
 import {
+  Alert,
+  AlertTitle,
   Autocomplete,
   Card,
   CardContent,
+  Chip,
+  Popover,
   TextField,
   Typography,
 } from "@mui/material";
-import { Molecule } from "./Molecule";
+import { Stack } from "@mui/system";
 
 export const Routes = () => {
   const [routes, setRoutes] = useState([]);
   const [selectedRouteIndex, setSelectedRouteIndex] = useState(null);
   const [isLoading, setLoading] = useState(true);
+
+  const [popoverAnchor, setPopOverAnchor] = React.useState();
+  const [popOverSmiles, setPopOverSmiles] = React.useState();
+  const [smilesToAttr, setSmilesToAttr] = React.useState();
 
   const NODE_HIGHT = 200;
   const NODE_WIDTH = 200;
@@ -41,15 +52,52 @@ export const Routes = () => {
     [routes]
   );
 
+  const createSmileToAttributesMap = useCallback((route) => {
+    if (!route?.children) {
+      return null;
+    }
+    let smilesToAttrMap = new Map();
+    route.children.forEach(
+      (child) =>
+        (smilesToAttrMap = new Map([
+          ...createSmileToAttributesMap(child),
+          ...smilesToAttrMap,
+        ]))
+    );
+    smilesToAttrMap.set(route.name, route.attributes);
+
+    return smilesToAttrMap;
+  }, []);
+
+  const isOpen = !!popoverAnchor;
   const isReadyToDisplayTree =
     !isLoading && (selectedRouteIndex || selectedRouteIndex === 0);
   const selectedRoute = isReadyToDisplayTree && routes[selectedRouteIndex];
 
-  const node = ({ nodeDatum, toggleNode }) => {
+  useEffect(() => {
+    const route = isReadyToDisplayTree && routes[selectedRouteIndex];
+    setSmilesToAttr(createSmileToAttributesMap(route?.molecule));
+  }, [
+    createSmileToAttributesMap,
+    selectedRouteIndex,
+    routes,
+    isReadyToDisplayTree,
+  ]);
+
+  const handlePopoverOpen = (event) => {
+    const { smiles } = event.target.dataset;
+    setPopOverAnchor(event.currentTarget);
+    setPopOverSmiles(smiles);
+  };
+
+  const handlePopoverClose = () => {
+    setPopOverAnchor(null);
+  };
+
+  const node = useCallback(({ nodeDatum, toggleNode }) => {
     const smiles = nodeDatum.name;
     return (
-      // TODO: Make this to show the molecule on hover.
-      <g>
+      <>
         <ReactSVG
           src={encodeURI(
             `http://localhost:8000/molecule?smiles=${smiles}&height=${NODE_HIGHT}&width=${NODE_WIDTH}`
@@ -57,17 +105,24 @@ export const Routes = () => {
           onClick={toggleNode}
           wrapper="svg"
           aria-label={smiles}
+          onMouseLeave={handlePopoverClose}
+          data-smiles={smiles}
+          onMouseEnter={handlePopoverOpen}
         />
-      </g>
+      </>
     );
-  };
+  }, []);
 
-  const pathFunc = (linkData, orientation) => {
+  const pathFunc = (linkData, _) => {
     const { source, target } = linkData;
     return `M${source.y + NODE_HIGHT},${source.x + NODE_WIDTH / 2}L${
       target.y + NODE_HIGHT / 2
     },${target.x + NODE_WIDTH / 2}`;
   };
+
+  const popOverAttributes = smilesToAttr?.get(popOverSmiles);
+  const popOverReactions = popOverAttributes?.reactions;
+  const popOverCatalogs = popOverAttributes?.acquisition_catalogs;
 
   return (
     !isLoading && (
@@ -94,7 +149,44 @@ export const Routes = () => {
                 nodeSize={{ x: 2 * NODE_WIDTH, y: 2 * NODE_HIGHT }}
                 renderCustomNodeElement={node}
                 pathFunc={pathFunc}
+                onNodeMouseOver={handlePopoverOpen}
+                onNodeMouseOut={handlePopoverClose}
               />
+              <Popover
+                open={isOpen}
+                anchorEl={popoverAnchor}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "left",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "left",
+                }}
+                onClose={handlePopoverClose}
+                disableRestoreFocus
+                sx={{
+                  pointerEvents: "none",
+                }}
+              >
+                <Alert severity="info">
+                  <AlertTitle>{popOverSmiles}</AlertTitle>
+                  {popOverReactions?.length > 0 && (
+                    <>
+                      <Chip icon={<ScienceIcon />} label={popOverReactions} />
+                    </>
+                  )}
+                  <Stack spacing={1}>
+                    {popOverCatalogs?.map((catalog, i) => (
+                      <Chip
+                        key={i}
+                        icon={<ShoppingCartIcon />}
+                        label={`${catalog.name} | ${catalog.lead_time_weeks} weeks lead time`}
+                      />
+                    ))}
+                  </Stack>
+                </Alert>
+              </Popover>
               )
             </CardContent>
           </Card>
